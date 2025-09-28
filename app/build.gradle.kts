@@ -36,6 +36,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -50,11 +51,28 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
 
-//   to use material icons
+    // to use material icons
     implementation(libs.androidx.material.icons.extended)
 
-//    navigation
+    // navigation
     implementation(libs.androidx.navigation.compose)
+    // for persitent storage
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+
+    // Media3 for audio and video playback
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.ui)
+    implementation(libs.androidx.media3.common)
+
+    // camera-x
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.video)
+    implementation(libs.androidx.camera.view)
+
+    implementation(libs.androidx.fragment)
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
