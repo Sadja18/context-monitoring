@@ -79,6 +79,7 @@ class HealthMonitorViewModel(application: Application) : AndroidViewModel(applic
     }
 
     fun markHeartRateCompleted(videoPath: String) {
+        println("attempting to save $videoPath")
         viewModelScope.launch {
             if (currentDraftId != null) {
                 // Update existing draft

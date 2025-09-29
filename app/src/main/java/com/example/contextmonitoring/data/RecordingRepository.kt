@@ -29,6 +29,7 @@ class RecordingRepository private constructor(context: Context) {
         symptoms: List<String>? = null
     ): Boolean {
         val contentValues = ContentValues()
+        println("Content values $contentValues")
 
         // Only update fields that are provided (not null)
         if (videoPath != null) {
@@ -40,6 +41,7 @@ class RecordingRepository private constructor(context: Context) {
         if (symptoms != null) {
             contentValues.put(DatabaseContract.DraftRecordingsTable.COLUMN_SYMPTOMS, symptoms.joinToString(","))
         }
+        println("Content values $contentValues")
 
         // Don't update started_at when updating existing draft
 
@@ -49,6 +51,7 @@ class RecordingRepository private constructor(context: Context) {
             "${BaseColumns._ID} = ?",
             arrayOf(draftId.toString())
         )
+        println("rows affected $rowsAffected")
 
         return rowsAffected > 0
     }

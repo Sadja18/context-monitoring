@@ -1,10 +1,28 @@
 package com.example.contextmonitoring.ui.components
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material3.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -12,9 +30,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.contextmonitoring.data.RecordingSession
-
-import androidx.media3.ui.PlayerView
-import androidx.compose.ui.viewinterop.AndroidView
 import com.example.contextmonitoring.utils.rememberMedia3Helper
 
 @Composable
@@ -24,6 +39,21 @@ fun RecordHistoryCard(
 ) {
     val media3Helper = rememberMedia3Helper()
     val context = LocalContext.current
+
+    // State to track which video is being played (null = none)
+    var playingVideoUri by remember { mutableStateOf<String?>(null) }
+    var playingAudioUri by remember { mutableStateOf<String?>(null) }
+
+    // Dismiss modal
+    fun dismissVideo() {
+        playingVideoUri = null
+    }
+
+    // Dismiss modal2
+    fun dismissAudio() {
+        playingAudioUri = null
+    }
+
 
     Card(
         modifier = modifier
@@ -59,13 +89,14 @@ fun RecordHistoryCard(
 
             // Heart Rate Section
             SessionComponentItem(
-                title = "Heart Rate Video",
+                title = "Heart Rate",
                 hasContent = session.heartRateVideoPath != null,
                 color = Color(0xFFF44336),
                 onPlayClick = {
-                    // session.heartRateVideoPath?.let { onVideoPlay(it) }
+                    dismissVideo()
+                    dismissAudio()
                     session.heartRateVideoPath?.let { path ->
-                        media3Helper.playMedia(path)
+                        playingVideoUri = path // Show modal
                     }
                 }
             )
@@ -74,12 +105,14 @@ fun RecordHistoryCard(
 
             // Respiratory Section
             SessionComponentItem(
-                title = "Respiratory Audio",
+                title = "Respiratory",
                 hasContent = session.respiratoryAudioPath != null,
                 color = Color(0xFF4CAF50),
                 onPlayClick = {
+                    dismissVideo()
+                    dismissAudio()
                     session.respiratoryAudioPath?.let { path ->
-                        media3Helper.playMedia(path)
+                        playingAudioUri = path
                     }
                 }
             )
@@ -106,6 +139,22 @@ fun RecordHistoryCard(
                 )
             }
         }
+    }
+
+    // Show video player in modal when needed
+    playingVideoUri?.let { uri ->
+        VideoPlayerModal(
+            videoUri = uri,
+            onDismiss = ::dismissVideo
+        )
+    }
+
+    // Show audio player in modal when needed
+    playingAudioUri?.let{uri ->
+        AudioPlayerModal(
+            audioPath = uri,
+            onDismiss = ::dismissAudio
+        )
     }
 }
 

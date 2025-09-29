@@ -21,12 +21,17 @@ import com.example.contextmonitoring.BuildConfig
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VideoRecordingScreen(
+    existingVideoPath: String?,
     onBackClick: () -> Unit,
     onRecordingComplete: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    var recordedVideoPath by remember { mutableStateOf<String?>(null) }
+    println("Existing video path $existingVideoPath")
+    var recordedVideoPath by remember { mutableStateOf(
+        if (!existingVideoPath.isNullOrBlank()) existingVideoPath else null
+    ) }
+
     var isRecording by remember { mutableStateOf(false) }
     var currentTime by remember { mutableStateOf(0) }
     val maxDuration = if(BuildConfig.DEBUG) 5 else 45 // demo seconds

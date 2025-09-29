@@ -28,6 +28,7 @@ import androidx.compose.ui.draw.clip
 @Composable
 fun HomeScreen(
     onVitalCaptureClick: () -> Unit,
+    onDeleteAllClick:()->Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -94,7 +95,9 @@ fun HomeScreen(
 
         // Delete All Button
         OutlinedButton(
-            onClick = { /* TODO */ },
+            onClick = {
+                onDeleteAllClick()
+            },
             colors = ButtonDefaults.outlinedButtonColors(
                 containerColor = Color.White,
                 contentColor = Color(0xFFF44336), // Red text
@@ -126,6 +129,6 @@ fun HomeScreen(
 fun HomeScreenPreview() {
     // You need to wrap in your theme for proper styling
     com.example.contextmonitoring.ui.theme.ContextMonitoringTheme {
-        HomeScreen(onVitalCaptureClick = {}) // empty lambda for preview
+        HomeScreen(onVitalCaptureClick = {}, onDeleteAllClick = {}) // empty lambda for preview
     }
 }

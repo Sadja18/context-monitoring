@@ -4,13 +4,12 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.util.Log
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.video.MediaStoreOutputOptions
+import androidx.camera.video.FileOutputOptions
 import androidx.camera.video.Recorder
 import androidx.camera.video.Recording
 import androidx.camera.video.VideoCapture
@@ -18,6 +17,7 @@ import androidx.camera.video.VideoRecordEvent
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -62,9 +62,11 @@ class CameraXVideoRecorder(
         imageCapture = ImageCapture.Builder().build()
 
         val recorder = Recorder.Builder()
-            .setQualitySelector(androidx.camera.video.QualitySelector.from(
-                androidx.camera.video.Quality.FHD
-            ))
+            .setQualitySelector(
+                androidx.camera.video.QualitySelector.from(
+                    androidx.camera.video.Quality.FHD
+                )
+            )
             .build()
         videoCapture = VideoCapture.withOutput(recorder)
 
@@ -91,17 +93,14 @@ class CameraXVideoRecorder(
 
         val videoCapture = videoCapture ?: return
 
-        val name = "VID_${SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.US).format(Date())}.mp4"
-        val contentValues = android.content.ContentValues().apply {
-            put(android.provider.MediaStore.Video.Media.DISPLAY_NAME, name)
-            put(android.provider.MediaStore.Video.Media.MIME_TYPE, "video/mp4")
-            put(android.provider.MediaStore.Video.Media.RELATIVE_PATH, "Movies/ContextMonitoring")
-        }
+        // Create a file in app's private directory
+        val videoFile = File(
+            context.filesDir,
+            "VID_${SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.US).format(Date())}.mp4"
+        )
 
-        val outputOptions = MediaStoreOutputOptions.Builder(
-            context.contentResolver,
-            android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI
-        ).setContentValues(contentValues).build()
+        // Use CameraX FileOutputOptions instead of MediaStore
+        val outputOptions = FileOutputOptions.Builder(videoFile).build()
 
         recording = videoCapture.output
             .prepareRecording(context, outputOptions)
@@ -111,9 +110,11 @@ class CameraXVideoRecorder(
                     is VideoRecordEvent.Start -> Log.d("CameraXVideoRecorder", "Recording started")
                     is VideoRecordEvent.Finalize -> {
                         Log.d("CameraXVideoRecorder", "Recording ended")
-                        onComplete(event.outputResults.outputUri.toString())
+                        onComplete(videoFile.absolutePath)
                     }
-                    is VideoRecordEvent.Status -> { /* optional: handle duration/size updates */}
+
+                    is VideoRecordEvent.Status -> { /* optional: handle duration/size updates */
+                    }
                 }
             }
     }

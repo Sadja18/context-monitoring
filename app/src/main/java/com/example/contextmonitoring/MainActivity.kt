@@ -39,6 +39,9 @@ class MainActivity : ComponentActivity() {
                             onVitalCaptureClick = {
                                 print("Navigating to health monitor")
                                 navController.navigate("health_monitor")
+                            },
+                            onDeleteAllClick = {
+                                healthViewModel.deleteAllRecords()
                             }
                         )
                     }
@@ -64,13 +67,14 @@ class MainActivity : ComponentActivity() {
                     composable("video_recording") {
                         val existingVideoPath = healthViewModel.currentDraftVideoPath
                         VideoRecordingScreen(
+                            existingVideoPath = existingVideoPath,
                             onBackClick = {
                                 navController.popBackStack()
                             },
                             onRecordingComplete = { videoPath ->
                                 // TODO: Save to database later
-                                healthViewModel.markHeartRateCompleted(videoPath)
                                 println("Video recording complete at path $videoPath")
+                                healthViewModel.markHeartRateCompleted(videoPath)
                             }
                         )
                     }
