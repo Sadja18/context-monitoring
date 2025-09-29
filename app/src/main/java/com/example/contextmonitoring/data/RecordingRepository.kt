@@ -53,6 +53,30 @@ class RecordingRepository private constructor(context: Context) {
         return rowsAffected > 0
     }
 
+    fun clearVideoPath(draftId: Long): Boolean {
+        val contentValues = ContentValues().apply {
+            putNull(DatabaseContract.DraftRecordingsTable.COLUMN_VIDEO_PATH)
+        }
+        return database.update(
+            DatabaseContract.DraftRecordingsTable.TABLE_NAME,
+            contentValues,
+            "${BaseColumns._ID} = ?",
+            arrayOf(draftId.toString())
+        ) > 0
+    }
+
+    fun clearAudioPath(draftId: Long): Boolean {
+        val contentValues = ContentValues().apply {
+            putNull(DatabaseContract.DraftRecordingsTable.COLUMN_AUDIO_PATH)
+        }
+        return database.update(
+            DatabaseContract.DraftRecordingsTable.TABLE_NAME,
+            contentValues,
+            "${BaseColumns._ID} = ?",
+            arrayOf(draftId.toString())
+        ) > 0
+    }
+
     // Save draft recording
     fun saveDraftRecording(
         videoPath: String?,

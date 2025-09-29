@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Air
-import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -33,6 +32,7 @@ import java.util.Locale
 @Composable
 fun AudioRecordingCard(
     isRecording: Boolean,
+    isPlaying: Boolean,
     recordedAudioPath: String?,
     currentTime: Int,
     maxDuration: Int,
@@ -100,8 +100,41 @@ fun AudioRecordingCard(
             }
 
             // Action Buttons
+//            if (recordedAudioPath != null) {
+//                // Playback and Delete Buttons
+//                Row(
+//                    modifier = Modifier.fillMaxWidth(),
+//                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+//                ) {
+//                    OutlinedButton(
+//                        onClick = onPlaybackClick,
+//                        modifier = Modifier.weight(1f)
+//                    ) {
+//                        Text("Play Audio")
+//                    }
+//
+//                    Button(
+//                        onClick = onDeleteClick,
+//                        colors = ButtonDefaults.buttonColors(
+//                            containerColor = MaterialTheme.colorScheme.error,
+//                            contentColor = Color.White
+//                        ),
+//                        modifier = Modifier.weight(1f)
+//                    ) {
+//                        Text("Delete")
+//                    }
+//                }
+//            }
             if (recordedAudioPath != null) {
-                // Playback and Delete Buttons
+                Text(
+                    text = when {
+                        isPlaying -> "Playing audio..."
+                        else -> "Recording Complete"
+                    },
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -110,7 +143,7 @@ fun AudioRecordingCard(
                         onClick = onPlaybackClick,
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("Play Audio")
+                        Text(if (isPlaying) "Pause Audio" else "Play Audio")
                     }
 
                     Button(

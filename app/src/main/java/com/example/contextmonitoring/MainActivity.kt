@@ -54,12 +54,15 @@ class MainActivity : ComponentActivity() {
                                 navController.navigate("audio_recording")
                             },
                             onSymptomsClick = { navController.navigate("symptoms_selection") },
+                            onCreateNewRecordingSessionClick = {
+                                healthViewModel.saveCurrentSession()
+                            },
                             recordingProgress = healthViewModel.recordingProgress,
                             savedSessions = healthViewModel.savedSessions // pass saved sessions
-
                         )
                     }
                     composable("video_recording") {
+                        val existingVideoPath = healthViewModel.currentDraftVideoPath
                         VideoRecordingScreen(
                             onBackClick = {
                                 navController.popBackStack()
@@ -72,17 +75,25 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                     composable("audio_recording") {
+                        val existingAudioPath = healthViewModel.currentDraftAudioPath
+
                         AudioRecordingScreen(
+                            existingAudioPath = existingAudioPath,
                             onBackClick = { navController.popBackStack() },
                             onRecordingComplete = { audioPath ->
                                 // TODO: Save to database later
                                 healthViewModel.markRespiratoryCompleted(audioPath)
                                 println("Audio recording complete at path $audioPath")
+                            },
+                            onDelete = {
+                                healthViewModel.unmarkRespiratory()
                             }
                         )
                     }
                     composable("symptoms_selection") {
+                        val existingSymptoms = healthViewModel.currentDraftSymptoms
                         SymptomsSelectionScreen(
+                            currentSymptoms = existingSymptoms,
                             onBackClick = { navController.popBackStack() },
                             onSaveSymptoms = { selectedSymptomIds ->
                                 // TODO: Save to database later

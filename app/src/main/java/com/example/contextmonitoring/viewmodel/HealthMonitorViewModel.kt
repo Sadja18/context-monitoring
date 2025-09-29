@@ -26,11 +26,27 @@ class HealthMonitorViewModel(application: Application) : AndroidViewModel(applic
     var currentDraftId by mutableStateOf<Long?>(null)
         private set
 
+    var currentDraftAudioPath by mutableStateOf<String?>(null)
+        private set
+
+    var currentDraftVideoPath by mutableStateOf<String?>(null)
+        private set
+
+    var currentDraftSymptoms by mutableStateOf<List<String>>(emptyList())
+        private set
+
     private fun loadCurrentDraft() {
         viewModelScope.launch {
             val draft = repository.getCurrentDraft()
             if (draft != null) {
+                println("Draft object: $draft")
+                println("Draft symptoms raw value: ${draft.symptoms} (${draft.symptoms.javaClass})")
+
                 currentDraftId = draft.id
+                currentDraftAudioPath = draft.audioPath  // <-- track audio path
+                currentDraftVideoPath = draft.videoPath // <-- track video path
+                currentDraftSymptoms = draft.symptoms // <-- track symptoms
+
                 recordingProgress = RecordingProgress(
                     heartRateCompleted = draft.videoPath != null,
                     respiratoryCompleted = draft.audioPath != null,
@@ -109,10 +125,34 @@ class HealthMonitorViewModel(application: Application) : AndroidViewModel(applic
         }
     }
 
+    fun unmarkHeartRate() {
+        viewModelScope.launch {
+            if (currentDraftId != null) {
+                repository.clearVideoPath(
+                    draftId = currentDraftId!!
+                )
+            }
+            recordingProgress = recordingProgress.copy(heartRateCompleted = false)
+        }
+    }
+
+    fun unmarkRespiratory() {
+        viewModelScope.launch {
+            if (currentDraftId != null) {
+                repository.clearAudioPath(
+                    draftId = currentDraftId!!
+                )
+            }
+            recordingProgress = recordingProgress.copy(respiratoryCompleted = false)
+        }
+    }
+
+
     fun saveCurrentSession() {
         viewModelScope.launch {
             currentDraftId?.let { draftId ->
                 val historyId = repository.moveDraftToHistory(draftId)
+                println("History ID after move $historyId")
                 if (historyId != -1L) {
                     // Success - reset progress and reload data
                     resetProgress()

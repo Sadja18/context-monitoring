@@ -1,9 +1,8 @@
 package com.example.contextmonitoring.ui.screens
 
-import android.media.MediaPlayer
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -11,12 +10,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.media3.ui.BuildConfig
 import com.example.contextmonitoring.ui.components.CameraXPreview
 import com.example.contextmonitoring.ui.components.VideoPlayer
 import com.example.contextmonitoring.utils.CameraXVideoRecorder
-import com.example.contextmonitoring.utils.FileUtils
 import kotlinx.coroutines.delay
+
+import com.example.contextmonitoring.BuildConfig
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,15 +36,18 @@ fun VideoRecordingScreen(
     LaunchedEffect(isRecording) {
         if (isRecording) {
             currentTime = 0
+            cameraRecorder.startRecording { path ->
+                recordedVideoPath = path
+                onRecordingComplete(path)
+            }
+
             while (currentTime < maxDuration) {
                 delay(1000)
                 currentTime++
             }
+
+            cameraRecorder.stopRecording()
             isRecording = false
-            // Save demo audio file
-            val videoFile = FileUtils.createVideoFile(context)
-            recordedVideoPath = videoFile.absolutePath
-            onRecordingComplete(recordedVideoPath!!)
         }
     }
 
@@ -54,7 +57,7 @@ fun VideoRecordingScreen(
                 title = { Text("Video Recording", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 }
             )
@@ -63,11 +66,33 @@ fun VideoRecordingScreen(
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
             // Show camera preview until a video is recorded
             if (recordedVideoPath == null) {
+                // Preview
                 CameraXPreview(
                     cameraRecorder = cameraRecorder,
                     modifier = Modifier.weight(1f)
                 ) { uri ->
                     recordedVideoPath = uri
+                }
+
+                // Timer while recording
+                if (isRecording) {
+                    Text(
+                        text = "${currentTime}s / ${maxDuration}s",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier
+                            .padding(16.dp)
+                    )
+                }
+
+                // Record button (disabled while recording)
+                Button(
+                    onClick = { isRecording = true },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    enabled = !isRecording
+                ) {
+                    Text("Start Recording")
                 }
             } else {
                 // Show video playback

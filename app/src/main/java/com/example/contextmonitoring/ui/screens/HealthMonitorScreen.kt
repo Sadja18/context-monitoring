@@ -42,6 +42,7 @@ fun HealthMonitorScreen(
     onHeartRateClick: () -> Unit,
     onRespiratoryClick: () -> Unit,
     onSymptomsClick: () -> Unit,
+    onCreateNewRecordingSessionClick: ()->Unit,
     recordingProgress: RecordingProgress = RecordingProgress(),
     savedSessions: List<RecordingSession> = emptyList(),
     modifier: Modifier = Modifier
@@ -150,6 +151,7 @@ fun HealthMonitorScreen(
                     Button(
                         onClick = {
                             println("Saving session recorded $recordingProgress")
+                            onCreateNewRecordingSessionClick()
 
                         },
                         modifier = Modifier
@@ -209,7 +211,8 @@ fun HealthMonitorScreenPreview() {
             onBackClick = {},
             onHeartRateClick = {},
             onRespiratoryClick = {},
-            onSymptomsClick = {}
+            onSymptomsClick = {},
+            onCreateNewRecordingSessionClick = {}
         )
     }
 }
